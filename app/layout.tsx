@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
+import ThemeProvider from "@/context/theme";
+import Navbar from "@/components/navigation/navbar";
 
 
 const inter = localFont({
@@ -33,9 +35,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning lang="en">
       <body className={`${inter.className} ${spacegrotesk.variable} antialiased`}>
-        {children}
+
+       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+           <Navbar/>
+         {children}
+       </ThemeProvider>
+
       </body>
     </html>
   );
