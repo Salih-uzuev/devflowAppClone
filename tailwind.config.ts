@@ -97,7 +97,8 @@ const config: Config = {
   			'space-grotesk': [
   				'var(--font-space-grotesk)'
   			]
-  		}
+  		},
+
   	}
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
