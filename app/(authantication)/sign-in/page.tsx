@@ -1,12 +1,15 @@
-import React from 'react'
+"use client"
+import AuthForm from "@/components/forms/AuthForm";
+import {SignInSchema} from "@/lib/validations";
 
 
-const SignIn = ({children}:{children: React.ReactNode}) => {
-    return (
-       <div>
-           <h1>Sign in</h1>
-           {children}
-       </div>
-    )
+const SignIn = () => {
+    return <AuthForm
+
+        formType="SIGN_IN"
+        schema={SignInSchema}
+        defaultValues={{email:'',password:''}}
+        onSubmit={(data) => Promise.resolve({success:true,data})}
+    />
 }
 export default SignIn
