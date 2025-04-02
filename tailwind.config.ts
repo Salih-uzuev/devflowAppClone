@@ -89,6 +89,7 @@ const config: Config = {
   		},
   		screens: {
   			xs: '420px'
+
   		},
   		fontFamily: {
   			inter: [
