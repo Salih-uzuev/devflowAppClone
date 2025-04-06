@@ -9,6 +9,9 @@ export interface IVote {
 
 }
 
+export interface IVoteDoc extends IVote, Document {}
+
+
 const VoteSchema = new Schema<IVote>({
     author:{type: Schema.Types.ObjectId, ref: 'User', required: true},
     id:{type: Schema.Types.ObjectId, required: true},
