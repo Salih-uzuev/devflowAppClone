@@ -30,11 +30,16 @@ const questions = [
 
 
 ]
+
+
+
+
 interface SearchParams {
     searchParams:Promise<{[key:string]: string}>
 }
 
 const Home = async ({searchParams}:SearchParams)=> {
+
 
     const { query = "", filter = "" } = await searchParams;
 
