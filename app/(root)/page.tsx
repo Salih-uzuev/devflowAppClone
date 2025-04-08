@@ -5,8 +5,6 @@ import LocalSearch from "@/components/search/LocalSearch";
 import HomeFilter from "@/components/filters/HomeFilter";
 import QuestionCard from "@/components/cards/QuestionCard";
 
-import dbConnect from "@/lib/mongoose";
-import handleError from "@/lib/handlers/error";
 
 const questions = [
     {_id:"1", title:"How to create a custom hook in React?", description:"I want to learn react can anyone help me?",
@@ -18,6 +16,7 @@ const questions = [
         answers:5,
         views:100,
         createdAt:new Date("2024-03-01"),
+
 
     },
     {_id:"2", title:"How to create a custom hook in Js?", description:"I want to learn Js can anyone help me?", tags:[
