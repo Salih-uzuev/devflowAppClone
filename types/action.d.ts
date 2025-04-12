@@ -10,3 +10,10 @@ interface AuthCredentials{
     email:string,
     password:string;
 }
+
+interface CreateQuestionParamas{
+    title:string,
+    content:string,
+    tags:string[],
+
+}
