@@ -17,3 +17,11 @@ interface CreateQuestionParamas{
     tags:string[],
 
 }
+
+interface EditQuestionParams extends CreateQuestionParamas{
+    questionId:string;
+}
+
+interface GetQuestionParams{
+    questionId:string;
+}
