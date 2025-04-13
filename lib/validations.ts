@@ -1,4 +1,4 @@
-import {z} from 'zod'
+import {object, z} from 'zod'
 
 export const SignInSchema = z.object(({
     email: z
@@ -129,3 +129,13 @@ export const EditQuestionSchema = askQuestionSchema.extend({
 export const GetQuestionSchema = z.object({
     questionId:z.string().min(1, { message: "Question ID is required." }),
 })
+
+export const PaginatedSearchParamsSchema = z.object(
+    {
+        page:z.number().int().positive().default(1),
+        pageSize:z.number().int().positive().default(10),
+        query:z.string().optional(),
+        filter:z.string().optional(),
+        sort:z.string().optional(),
+    }
+);
