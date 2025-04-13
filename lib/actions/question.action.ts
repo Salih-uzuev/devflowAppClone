@@ -240,6 +240,8 @@ export async function getQuestions(params:PaginatedSearchParams): Promise<Action
 
 
     try {
+
+
         const totalQuestion = await Question.countDocuments(filterQuery)
         const questions = await Question.find(filterQuery)
             .populate('tags', 'name')
