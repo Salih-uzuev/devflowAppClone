@@ -51,6 +51,7 @@ const Home = async ({searchParams}:SearchParams)=> {
                 placeholder="Search Questions..."
                 otherClasses="flex-1"
 
+
                 />
             </section>
 
