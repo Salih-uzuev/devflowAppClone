@@ -4,11 +4,20 @@ import mongoose, {FilterQuery} from "mongoose";
 import Question, {IQuestionDoc} from "@/database/question.model";
 import {ActionResponse, ErrorResponse, PaginatedSearchParams} from "@/types/global";
 import action from "@/lib/handlers/action";
-import {askQuestionSchema, EditQuestionSchema, GetQuestionSchema, PaginatedSearchParamsSchema} from "@/lib/validations";
+import {
+    askQuestionSchema,
+    EditQuestionSchema,
+    GetQuestionSchema,
+    IncrementViewsSchema,
+    PaginatedSearchParamsSchema
+} from "@/lib/validations";
 import handleError from "@/lib/handlers/error";
 import Tag, {ITagDoc} from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
 import {sort} from "next/dist/build/webpack/loaders/css-loader/src/utils";
+import {IncrementViewsParams} from "@/types/action";
+import {revalidatePath} from "next/cache";
+import ROUTES from "@/constans/routes";
 
 // @ts-ignore
 export async function createQuestion(params:CreateQuestionParamas):Promise<ActionResponse<Question>>{
@@ -265,3 +274,38 @@ export async function getQuestions(params:PaginatedSearchParams): Promise<Action
     }
 
 }
+
+export async function incrementViews(
+    params: IncrementViewsParams
+): Promise<ActionResponse<{ views: number }>> {
+    const validationResult = await action({
+        params,
+        schema: IncrementViewsSchema,
+        authorize: true,
+    });
+
+    if(validationResult instanceof Error){
+        return handleError(validationResult) as unknown as ErrorResponse;
+    }
+
+    const {questionId} = validationResult.params!;
+
+    try {
+        const question = await Question.findById(questionId)
+        if(!question){
+            throw new Error('Question not found');
+        }
+
+        question.views += 1;
+        await question.save();
+        revalidatePath(ROUTES.QUESTION(questionId));
+
+        return {success:true, data:{views:question.views}}
+
+    }catch (e) {
+        return handleError(e) as unknown as ErrorResponse
+    }
+
+
+}
+

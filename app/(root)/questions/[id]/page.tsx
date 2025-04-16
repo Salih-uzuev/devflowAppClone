@@ -9,6 +9,7 @@ import TagCard from "@/components/cards/TagCard";
 import {Preview} from "@/components/editor/Preview";
 import {getQuestion} from "@/lib/actions/question.action";
 import {redirect} from "next/navigation";
+import Views from "@/app/(root)/questions/view";
 
 
 
@@ -22,6 +23,7 @@ const QuestionDetails = async ({params}:RouteParams) => {
 
 
     return <>
+        <Views questionId={id}/>
     <div className="flex-start w-full flex-col">
         <div className="flex w-full flex-col-reverse justify-between">
             <div className="flex items-center justify-start gap-0.5">
