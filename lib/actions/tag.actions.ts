@@ -9,6 +9,7 @@ import Question from "@/database/question.model";
 
 
 export const getTags = async (params:PaginatedSearchParams): Promise<ActionResponse<{
+    // @ts-ignore
     tags:Tag[], isNext:boolean}>> =>{
     const validationResult = await action(
         {
@@ -76,6 +77,7 @@ export const getTags = async (params:PaginatedSearchParams): Promise<ActionRespo
 }
 
 export const getTagQuestions = async (params:GetTagQuestionsParams): Promise<ActionResponse<{
+    // @ts-ignore
     tag:Tag; questions:Question[], isNext:boolean}>> =>{
     const validationResult = await action(
         {
