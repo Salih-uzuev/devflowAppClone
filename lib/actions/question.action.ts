@@ -14,10 +14,8 @@ import {
 import handleError from "@/lib/handlers/error";
 import Tag, {ITagDoc} from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
-import {sort} from "next/dist/build/webpack/loaders/css-loader/src/utils";
 import {IncrementViewsParams} from "@/types/action";
-import {revalidatePath} from "next/cache";
-import ROUTES from "@/constans/routes";
+
 
 // @ts-ignore
 export async function createQuestion(params:CreateQuestionParamas):Promise<ActionResponse<Question>>{
@@ -281,7 +279,7 @@ export async function incrementViews(
     const validationResult = await action({
         params,
         schema: IncrementViewsSchema,
-        authorize: true,
+        authorize: false,
     });
 
     if(validationResult instanceof Error){
@@ -298,7 +296,7 @@ export async function incrementViews(
 
         question.views += 1;
         await question.save();
-        revalidatePath(ROUTES.QUESTION(questionId));
+
 
         return {success:true, data:{views:question.views}}
 

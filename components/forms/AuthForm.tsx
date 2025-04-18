@@ -99,7 +99,7 @@ const AuthForm = <T extends FieldValues> ({
                 buttonText === 'Sign In' ? 'Signing In...' : 'Signing Up...' : buttonText}</Button>
 
                 {formType === 'SIGN_IN' ? (
-                    <p>Don't have an account ? {" "} <Link href={ROUTES.SIGN_UP} className="paragraph-semibold primary-text-gradient">Sign Up</Link> </p>
+                    <p>Don&#39;t have an account ? {" "} <Link href={ROUTES.SIGN_UP} className="paragraph-semibold primary-text-gradient">Sign Up</Link> </p>
                 ):(
                     <p>Already have an account? {" "} <Link href={ROUTES.SIGN_IN} className="paragraph-semibold primary-text-gradient">Sign In</Link> </p>
                 ) }

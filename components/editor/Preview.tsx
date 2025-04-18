@@ -11,7 +11,6 @@ Code.theme = {
 
 export const Preview = ({ content }: { content: string }) => {
     const formattedContent = content.replace(/\\/g, "").replace(/&#x20;/g, "");
-    console.log(formattedContent);
 
     return (
         <section className="markdown prose grid break-words">
