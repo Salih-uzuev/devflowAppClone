@@ -1,12 +1,14 @@
 "use server"
 
-import {CreateVoteParams, UpdateVoteCountParams} from "@/types/action";
+import {CreateVoteParams, HasVotedParams, HasVotedResponse, UpdateVoteCountParams} from "@/types/action";
 import {ActionResponse, ErrorResponse} from "@/types/global";
-import {CreateVoteSchema, UpdateVoteCountSchema} from "@/lib/validations";
+import {CreateVoteSchema, HasVotedSchema, UpdateVoteCountSchema} from "@/lib/validations";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
 import mongoose from "mongoose";
 import {Answer, Question, Vote} from "@/database";
+import {revalidatePath} from "next/cache";
+import ROUTES from "@/constans/routes";
 
 export async function updateVoteCount(params:UpdateVoteCountParams, session?: mongoose.ClientSession):Promise<ActionResponse> {
     const validationResult = await action({params,schema:UpdateVoteCountSchema});
@@ -69,22 +71,69 @@ export async function createVote(params:CreateVoteParams):Promise<ActionResponse
                 await updateVoteCount({targetId, targetType,voteType, change:-1}, session);
             }else {
                 // If the user has already voted with a different votetType(upvotes or downvotes) then update the vote.
-                await Vote.findByIdAndUpdate(existingVote._id, {voteType}, {new:true, session});
+                await Vote.findByIdAndUpdate(existingVote._id, {voteType, change:-1}, {new:false, session});
+
                 await updateVoteCount({targetId, targetType,voteType, change:1}, session);
             }
         }else {
             // If user hs not voted yet, create a new vote
-            await Vote.create([{targetId,targetType, voteType,change:1}], {session});
+            await Vote.create([{
+                author:userId,
+                actionId:targetId,
+                actionType:targetType,
+                voteType,
+            }],{session});
+
             await updateVoteCount({targetId, targetType,voteType, change:1}, session);
 
         }
 
         await session.commitTransaction();
+        await session.endSession();
+
+        revalidatePath(ROUTES.QUESTION(targetId))
         return {success:true};
 
     }catch (error){
         await session.abortTransaction();
         await session.endSession();
+
+
         return handleError(error) as unknown as ErrorResponse;
+    }
+}
+
+
+export async function hasVoted(params:HasVotedParams):Promise<ActionResponse<HasVotedResponse>>{
+    const validationResult = await action({params,schema:HasVotedSchema, authorize:true});
+
+    if(validationResult instanceof Error){
+        return handleError(validationResult) as unknown as ErrorResponse;
+    }
+
+    const {targetId, targetType} = validationResult.params!;
+    const userId = validationResult.session?.user?.id;
+
+    try {
+        const vote = await Vote.findOne({
+            author:userId,
+            actionId:targetId,
+            actionType:targetType
+        });
+
+        if(!vote) return {
+            success:false,
+            data:{hasUpvoted:false, hasDownvoted:false}
+        }
+            return {
+                success:true,
+                data:{hasUpvoted:vote.voteType === 'upvote', hasDownvoted:vote.voteType === 'downvote'},
+            };
+
+
+
+
+    }catch (error){
+        return handleError(error) as unknown as ErrorResponse
     }
 }
