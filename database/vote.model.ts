@@ -3,8 +3,8 @@ import {model, models, Schema, Types} from "mongoose";
 export interface IVote {
     author:Types.ObjectId;
     actionId:Types.ObjectId;
-    actionType:string;
-    voteType:string
+    actionType: "question" | "answer";
+    voteType: "upvote" | "downvote";
 
 
 }
