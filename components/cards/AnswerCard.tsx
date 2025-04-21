@@ -7,6 +7,7 @@ import {Preview} from "@/components/editor/Preview";
 import Votes from "@/components/votes/Votes";
 import {hasVoted} from "@/lib/actions/vote.action";
 
+// @ts-ignore
 const AnswerCard = ({_id, author, content, createdAt, upvotes, downvotes}: Answer) => {
     const hasVotedPromise = hasVoted({
         targetId:_id,

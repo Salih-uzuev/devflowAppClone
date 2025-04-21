@@ -1,0 +1,66 @@
+"use server"
+
+import {ActionResponse, ErrorResponse, PaginatedSearchParams} from "@/types/global";
+import action from "@/lib/handlers/action";
+import {PaginatedSearchParamsSchema} from "@/lib/validations";
+import handleError from "@/lib/handlers/error";
+import {FilterQuery} from "mongoose";
+import {User} from "@/database";
+
+
+async function getUsers(params:PaginatedSearchParams):Promise<ActionResponse<{users:User[], isNext:boolean}>>{
+    const validationResult = await action({
+        params,
+        schema: PaginatedSearchParamsSchema,
+    });
+
+    if(validationResult instanceof Error){
+        return handleError(validationResult) as unknown as ErrorResponse;
+    }
+
+    const {page=1, pageSize=10, query, filter} = params;
+    const skip = (Number(page)-1) * pageSize;
+    const limit = Number(pageSize);
+
+    const filterQuery: FilterQuery<typeof User> = {};
+
+    if(query){
+        filterQuery.$or = [
+            {username:{$regex: new RegExp(query, "i")}},
+            {email:{$regex: new RegExp(query, "i")}}
+        ]
+    }
+
+    let sortCriteria = {};
+
+    switch (filter){
+        case 'newest':
+            sortCriteria = {createdAt:-1};
+            break;
+        case 'oldest':
+            sortCriteria = {createdAt:1};
+            break;
+        case 'popular':
+            sortCriteria = {reputation:-1};
+            break;
+        default:
+            sortCriteria = {createdAt:-1};
+            break;
+    }
+
+    try {
+        const totalUsers = await User.countDocuments(filterQuery);
+        const users = await User.find(filterQuery)
+            .sort(sortCriteria)
+            .skip(skip)
+            .limit(limit)
+
+        const isNext = totalUsers > skip + users.length;
+
+        return {success:true, data:{users:JSON.parse(JSON.stringify(users)), isNext}}
+
+    }catch (error) {
+        return handleError(error) as unknown as ErrorResponse;
+
+    }
+}
