@@ -1,14 +1,19 @@
 "use client"
 
 import {useSession} from "next-auth/react";
-import {useState} from "react";
+import {use, useState} from "react";
 import Image from "next/image";
 import {toast} from "@/hooks/use-toast";
 import {toggleSaveQuestion} from "@/lib/actions/collection.action";
+import {ActionResponse} from "@/types/global";
 
-const SaveQuestion = ({questionId}:{questionId:string}) => {
+const SaveQuestion = ({questionId, hasSavedQuestionPromise}:{questionId:string,hasSavedQuestionPromise:Promise<ActionResponse<{saved:boolean}>>}) => {
     const session = useSession();
+
     const userId = session?.data?.user?.id;
+    const {data} = use(hasSavedQuestionPromise);
+
+    const {saved: hasSaved} = data || {};
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -19,6 +24,8 @@ const SaveQuestion = ({questionId}:{questionId:string}) => {
             description: "You need to be logged in to save this question",
             variant: "destructive",
         })
+
+
 
         setIsLoading(true);
 
@@ -44,7 +51,7 @@ const SaveQuestion = ({questionId}:{questionId:string}) => {
 
     }
 
-    const hasSaved = false;
+
 
     return (
         <Image src={hasSaved ?"/icons/star-filled.svg" : "/icons/star-red.svg"} width={18} height={18} alt="save" className={`cursor-pointer ${isLoading && 'opacity-50'}`} aria-label="Save question"
