@@ -8,7 +8,7 @@ import {FilterQuery} from "mongoose";
 import {User} from "@/database";
 
 
-async function getUsers(params:PaginatedSearchParams):Promise<ActionResponse<{users:User[], isNext:boolean}>>{
+export async function getUsers(params:PaginatedSearchParams):Promise<ActionResponse<{users:User[], isNext:boolean}>>{
     const validationResult = await action({
         params,
         schema: PaginatedSearchParamsSchema,
