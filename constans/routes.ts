@@ -10,6 +10,7 @@ const ROUTES = {
     QUESTION: (id:string)=> `/questions/${id}`,
     TAG:(id:string) => `/tags/${id}`,
     ASK_QUESTION:"/ask-question",
+    QUESTION_DETAILS:(questionId:string) => `/questions/${questionId}`
 
 };
 export default ROUTES
