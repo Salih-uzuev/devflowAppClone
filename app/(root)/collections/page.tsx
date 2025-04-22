@@ -6,6 +6,7 @@ import {getSavedQuestions} from "@/lib/actions/collection.action";
 import ROUTES from "@/constans/routes";
 import CommonFilter from "@/components/filters/CommonFilter";
 import {CollectionFilters} from "@/constans/filters";
+import Pagination from "@/components/Pagination";
 
 
 
@@ -27,7 +28,7 @@ const Collections = async ({searchParams}:SearchParams)=> {
         }
     );
 
-    const {collection} = data || {};
+    const {collection, isNext} = data || {};
 
 
 
@@ -62,6 +63,8 @@ const Collections = async ({searchParams}:SearchParams)=> {
                 </div>
             )}
             />
+
+            <Pagination page={page} isNext={isNext || false}/>
 
 
         </>

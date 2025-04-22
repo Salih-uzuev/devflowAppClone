@@ -9,6 +9,7 @@ import DataRenderer from "@/components/DataRenderer";
 import {EMPTY_QUESTION} from "@/constans/states";
 import {HomePageFilters} from "@/constans/filters";
 import CommonFilter from "@/components/filters/CommonFilter";
+import Pagination from "@/components/Pagination";
 
 
 
@@ -30,7 +31,7 @@ const Home = async ({searchParams}:SearchParams)=> {
         }
     );
 
-    const {questions} = data || {};
+    const {questions, isNext} = data || {};
 
 
 
@@ -72,6 +73,8 @@ const Home = async ({searchParams}:SearchParams)=> {
                 </div>
             )}
             />
+
+            <Pagination page={page} isNext={isNext || false}/>
 
 
         </>

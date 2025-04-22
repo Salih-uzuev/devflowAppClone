@@ -5,14 +5,17 @@ import {EMPTY_ANSWERS} from "@/constans/states";
 import AnswerCard from "@/components/cards/AnswerCard";
 import CommonFilter from "@/components/filters/CommonFilter";
 import {AnswerFilters} from "@/constans/filters";
+import Pagination from "@/components/Pagination";
 
 interface Props extends ActionResponse<Answer[]>{
+    page:number,
+    isNext:boolean
     totalAnswers:number;
 
 }
 
 
-const AllAnswers = ({data,success,error,totalAnswers}: Props) => {
+const AllAnswers = ({data,success,error,totalAnswers, page, isNext}: Props) => {
     return <div className="mt-11">
         <div className="flex items-center justify-between">
             <h3 className="primary-text-gradient">{totalAnswers} {totalAnswers===1?"Answer" : "Answers"}</h3>
@@ -25,6 +28,9 @@ const AllAnswers = ({data,success,error,totalAnswers}: Props) => {
                           <AnswerCard key={answer._id} {...answer} />
                       ))}/>
 
+        <Pagination page={page} isNext={isNext}/>
+
     </div>
+
 }
 export default AllAnswers

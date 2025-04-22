@@ -11,6 +11,7 @@ import {EMPTY_QUESTION} from "@/constans/states";
 import QuestionCard from "@/components/cards/QuestionCard";
 import {TagFilters} from "@/constans/filters";
 import CommonFilter from "@/components/filters/CommonFilter";
+import Pagination from "@/components/Pagination";
 
 const Page = async ({params, searchParams}:RouteParams) => {
     const {id} = await params;
@@ -21,7 +22,7 @@ const Page = async ({params, searchParams}:RouteParams) => {
         pageSize:Number(pageSize) || 10,
         query
     })
-    const { tag, questions } = data || {};
+    const { tag, questions , isNext} = data || {};
 
     return (
         <>
@@ -45,6 +46,8 @@ const Page = async ({params, searchParams}:RouteParams) => {
                 </div>
             )}
             />
+
+            <Pagination page={page} isNext={isNext || false}/>
 
         </>
     )
