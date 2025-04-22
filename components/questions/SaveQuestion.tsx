@@ -1,7 +1,7 @@
 "use client"
 
 import {useSession} from "next-auth/react";
-import {use, useState} from "react";
+import {use, useEffect, useState} from "react";
 import Image from "next/image";
 import {toast} from "@/hooks/use-toast";
 import {toggleSaveQuestion} from "@/lib/actions/collection.action";
@@ -9,11 +9,18 @@ import {ActionResponse} from "@/types/global";
 
 const SaveQuestion = ({questionId, hasSavedQuestionPromise}:{questionId:string,hasSavedQuestionPromise:Promise<ActionResponse<{saved:boolean}>>}) => {
     const session = useSession();
+    console.log("Session Info:", session);
 
     const userId = session?.data?.user?.id;
     const {data} = use(hasSavedQuestionPromise);
 
     const {saved: hasSaved} = data || {};
+    useEffect(() => {
+        console.log("Saved Status:", hasSaved);
+    }, [hasSaved]);
+
+    console.log("Data from hasSavedQuestionPromise:", data);
+
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -27,12 +34,17 @@ const SaveQuestion = ({questionId, hasSavedQuestionPromise}:{questionId:string,h
 
 
 
+
+
+
+
         setIsLoading(true);
 
         try {
           const{success,data,error} =  await toggleSaveQuestion({questionId})
 
             if(!success)  throw new Error(error?.message || "Something went wrong");
+
 
             toast({
                 title:`Question ${data?.saved? "saved" : "unsaved"} successfully`,

@@ -45,7 +45,6 @@ const QuestionDetails = async ({params}:RouteParams) => {
     const {author, createdAt, answers, views,tags, content, title} = question;
 
 
-    // @ts-ignore
     return <>
     <div className="flex-start w-full flex-col">
         <div className="flex w-full flex-col-reverse justify-between">
