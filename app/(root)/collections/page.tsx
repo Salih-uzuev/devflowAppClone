@@ -4,6 +4,8 @@ import DataRenderer from "@/components/DataRenderer";
 import {EMPTY_COLLECTIONS} from "@/constans/states";
 import {getSavedQuestions} from "@/lib/actions/collection.action";
 import ROUTES from "@/constans/routes";
+import CommonFilter from "@/components/filters/CommonFilter";
+import {CollectionFilters} from "@/constans/filters";
 
 
 
@@ -38,7 +40,7 @@ const Collections = async ({searchParams}:SearchParams)=> {
 
 
 
-            <div className="mx:sm:flex-col mt-11 flex justify-between gap-5 sm:items-center">
+            <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
                 <LocalSearch route={ROUTES.COLLECTION}
                              imgSrc='/icons/search.svg'
                              placeholder="Search Questions..."
@@ -46,6 +48,9 @@ const Collections = async ({searchParams}:SearchParams)=> {
 
 
                 />
+
+
+               <CommonFilter filters={CollectionFilters} otherClasses="min-h-[56px] sm:min-w-[170px]" />
             </div>
 
 

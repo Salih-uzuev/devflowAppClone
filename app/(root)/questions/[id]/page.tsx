@@ -20,8 +20,9 @@ import {hasSavedQuestion} from "@/lib/actions/collection.action";
 
 
 
-const QuestionDetails = async ({params}:RouteParams) => {
+const QuestionDetails = async ({params, searchParams}:RouteParams) => {
     const {id} = await params;
+    const{page,pageSize,filter} = await searchParams;
 
     const {success, data:question} = await getQuestion({questionId:id});
     after(async () =>{
@@ -33,7 +34,7 @@ const QuestionDetails = async ({params}:RouteParams) => {
 
     if(!success || !question) return redirect("/404")
 
-    const {success: areAnswersLoaded , data:answersResult, error:answersError} = await getAnswers({questionId:id, page:1, pageSize:10, filter:"latest"});
+    const {success: areAnswersLoaded , data:answersResult, error:answersError} = await getAnswers({questionId:id, page:Number(page) | 1, pageSize:Number(pageSize) | 10, filter});
 
     const hasVotedPromise  = hasVoted({targetId:question._id, targetType:"question"});
 
@@ -54,7 +55,7 @@ const QuestionDetails = async ({params}:RouteParams) => {
                     <p className="paragraph-semibold text-dark300_light700">{author.name}</p>
                 </Link>
             </div>
-            <div className="flex justify-end items-center gap-2">
+            <div className="flex items-center justify-end gap-2">
                 <Suspense fallback={<div>Loading....</div>}>
                     <Votes upvotes={question.upvotes}  downvotes={question.downvotes} targetType="question" targetId={question._id}  hasVotedPromise={hasVotedPromise}/>
 
