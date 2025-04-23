@@ -15,6 +15,7 @@ import handleError from "@/lib/handlers/error";
 import Tag, {ITagDoc} from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
 import {IncrementViewsParams} from "@/types/action";
+import dbConnect from "@/lib/mongoose";
 
 
 // @ts-ignore
@@ -305,5 +306,20 @@ export async function incrementViews(
     }
 
 
+}
+
+export async function getHotQuetions():Promise<ActionResponse<Question[]>>{
+
+    try {
+        await dbConnect();
+
+        const questions = await Question.find()
+            .sort({views:-1, upvotes:-1})
+            .limit(5)
+        return {success:true, data:JSON.parse(JSON.stringify(questions))};
+
+    }catch (error){
+        return handleError(error) as unknown as ErrorResponse
+    }
 }
 
