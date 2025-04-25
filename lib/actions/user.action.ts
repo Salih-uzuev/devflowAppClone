@@ -68,7 +68,7 @@ export async function getUsers(params:PaginatedSearchParams):Promise<ActionRespo
 }
 
 export async function getUser (params:GetUserParams):Promise<ActionResponse<{
-    user: typeof User;
+    user: User;
     totalQuestion:number;
     totalAnswers:number;
 }>>{
