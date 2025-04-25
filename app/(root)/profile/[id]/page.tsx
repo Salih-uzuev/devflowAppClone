@@ -8,6 +8,7 @@ import ProfileLink from "@/components/user/ProfileLink";
 import dayjs from "dayjs";
 import Link from "next/link";
 import {Button} from "@/components/ui/button";
+import Stats from "@/components/user/Stats";
 
 const Profile = async ({params}:RouteParams) => {
     const {id} = await params;
@@ -34,6 +35,7 @@ const Profile = async ({params}:RouteParams) => {
     })
 
     return (
+        <>
         <section className="flex flex-col-reverse items-start justify-between sm:flex-row">
             <div className="flex flex-col items-start gap-4 lg:flex-row">
                 <UserAvatar id={_id}
@@ -81,6 +83,16 @@ const Profile = async ({params}:RouteParams) => {
 
             </div>
         </section>
+            <Stats
+                totalQuestion={totalQuestion}
+                totalAnswers={totalAnswers}
+                badges={{
+                    gold:0,
+                    bronze:0,
+                    silver:0
+                }}
+            />
+        </>
     )
 
 
