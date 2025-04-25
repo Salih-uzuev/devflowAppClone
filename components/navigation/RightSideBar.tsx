@@ -12,8 +12,13 @@ import {getTopTags} from "@/lib/actions/tag.actions";
 
 
 const RightSideBar = async () => {
-    const {success, data:hotQuestions, error } =  await getHotQuetions();
-    const {success:tagSuccess, data:tagss, error:tagError } =  await getTopTags();
+
+
+    const [
+        {success, data:hotQuestions, error },
+        {success:tagSuccess, data:tagss, error:tagError }
+    ] = await Promise.all([getHotQuetions(), getTopTags()]);
+
 
     return <section className="custom-scrollbar background-light900_dark200
     light-border righ-0 sticky top-0 flex h-screen w-[350px] flex-col gap-6

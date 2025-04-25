@@ -141,7 +141,9 @@ export const getTagQuestions = async (params:GetTagQuestionsParams): Promise<Act
 export async function getTopTags():Promise<ActionResponse<Tag[]>> {
 
     try {
+
         await dbConnect();
+
 
         const tags = await Tag.find().sort({questions:-1}).limit(5)
         return {success:true, data:JSON.parse(JSON.stringify(tags))};

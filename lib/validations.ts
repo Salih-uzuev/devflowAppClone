@@ -187,6 +187,10 @@ export const CollectionBaseSchema = z.object(
     }
 )
 
+export const GetUserSchema = z.object({
+    userId:z.string().min(3, { message: "Username must be at least 3 characters long." }),
+})
+
 
 
 
