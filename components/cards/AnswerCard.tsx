@@ -2,24 +2,29 @@ import React, {Suspense} from 'react'
 import UserAvatar from "@/components/UserAvatar";
 import Link from "next/link";
 import ROUTES from "@/constans/routes";
-import {getTimeStamp} from "@/lib/utils";
+import {cn, getTimeStamp} from "@/lib/utils";
 import {Preview} from "@/components/editor/Preview";
 import Votes from "@/components/votes/Votes";
 import {hasVoted} from "@/lib/actions/vote.action";
 
+interface Props extends Answer{
+    containerClasses?:string
+    showReadMore?:boolean
+}
+
 // @ts-ignore
-const AnswerCard = ({_id, author, content, createdAt, upvotes, downvotes}: Answer) => {
+const AnswerCard = ({_id, author, content, createdAt, upvotes, downvotes, question, containerClasses, showReadMore=false,}: Props) => {
     const hasVotedPromise = hasVoted({
         targetId:_id,
         targetType:"answer"
     })
     return (
-        <article className="light-border border-b py-10">
-            <span id={JSON.stringify(_id)} className="hash-span"/>
+        <article className={cn("light-border border-b py-10", containerClasses)}>
+            <span id={`answer-${_id}`} className="hash-span"/>
             <div className="mb-5 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex flex-1 items-start gap-1 sm:items-center">
                     <UserAvatar id={author._id} name={author.name} imageUrl={author.image} className="size-5 rounded-full object-cover max-sm:mt-2 "/>
-                    <Link href={ROUTES.PROFILE(author._id)} className="flex flex-col sm:flex-row sm:items-center max-sm:ml-1 ">
+                    <Link href={ROUTES.PROFILE(author._id)} className="flex flex-col max-sm:ml-1 sm:flex-row sm:items-center ">
                         <p className="body-semibold text-dark300_light700">{author.name ?? "Anonymous"}</p>
 
                         <p className="small-regular text-dark400_light500 ml-0.5 mt-0.5 line-clamp-1">
@@ -41,6 +46,16 @@ const AnswerCard = ({_id, author, content, createdAt, upvotes, downvotes}: Answe
 
             </div>
             <Preview content={content}/>
+
+            {showReadMore &&(
+                <Link href={`/questions/${question}#answer-${_id}`} className="body-semibold relative z-10 font-space-grotesk text-primary-500">
+                    <p className="mt-1">
+                        Read More...
+
+                    </p>
+
+                </Link>
+            )}
 
 
 
