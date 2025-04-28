@@ -1,13 +1,13 @@
 "use server"
 
-import {CreateAnswerParams, GetAnswersParams} from "@/types/action";
+import {CreateAnswerParams, DeleteAnswerParams, GetAnswersParams} from "@/types/action";
 import {IAnswerDoc} from "@/database/answer.model";
 import {ActionResponse, ErrorResponse} from "@/types/global";
 import action from "@/lib/handlers/action";
-import {AnswerServerSchema, GetAnswersSchema} from "@/lib/validations";
+import {AnswerServerSchema, DeleteAnswerSchema, GetAnswersSchema} from "@/lib/validations";
 import handleError from "@/lib/handlers/error";
 import mongoose from "mongoose";
-import {Answer, Question} from "@/database";
+import {Answer, Question, Vote} from "@/database";
 import {revalidatePath} from "next/cache";
 import ROUTES from "@/constans/routes";
 
@@ -112,5 +112,54 @@ export async function getAnswers(params:GetAnswersParams):Promise<ActionResponse
         return handleError(e) as unknown as ErrorResponse
 
     }
+
+}
+
+export async function deleteAnswer(params:DeleteAnswerParams):Promise<ActionResponse>{
+    const validationResult = await action({
+        params,
+        schema:DeleteAnswerSchema,
+        authorize:true
+    });
+    if(validationResult instanceof Error){
+        return handleError(validationResult) as unknown as ErrorResponse;
+    }
+
+    const {answerId} = validationResult.params!;
+    const {user} = validationResult.session!;
+
+    const session = await mongoose.startSession();
+
+
+    try {
+        session.startTransaction();
+        const answer = await Answer.findById(answerId).session(session);
+        if(!answer){
+            throw new Error('Answer not found');
+        }
+        if(answer.author.toString() !== user?.id){
+            throw new Error('You are not authorized to delete this answer');
+        }
+
+        await Question.findByIdAndUpdate(
+            answer.question,
+            {$inc:{answers:-1}},
+            {session}
+        );
+
+        await Vote.deleteMany({actionId:answerId, actionType:'answer'}, {session});
+
+        await Answer.findByIdAndDelete(answerId, {session});
+        await session.commitTransaction();
+        await session.endSession();
+        revalidatePath(`profile/${user?.id}`)
+        return {success:true};
+    }catch (error){
+        await session.abortTransaction();
+        await session.endSession();
+
+        return handleError(error) as unknown as ErrorResponse;
+    }
+
 
 }
