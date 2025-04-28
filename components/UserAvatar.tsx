@@ -32,7 +32,7 @@ const UserAvatar = ({id,name,imageUrl, fallbackClassName , className='h-9 w-9'}:
                     quality={100}
                 />
             ):(
-                <AvatarFallback className={cn("primary-gradient font-space-grotesk font-bold tracking-wider text-white", fallbackClassName)}>
+                <AvatarFallback className={cn("primary-gradient font-space-grotesque font-bold tracking-wider text-white", fallbackClassName)}>
                     {initials}
 
                 </AvatarFallback>

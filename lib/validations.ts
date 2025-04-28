@@ -199,4 +199,8 @@ export const GetUsersAnswersSchema = PaginatedSearchParamsSchema.extend({
     userId:z.string().min(3, { message: "Username must be at least 3 characters long." }),
 })
 
+export const GetUsersTagsSchema = z.object({
+    userId:z.string().min(3, { message: "Username must be at least 3 characters long." }),
+})
+
 

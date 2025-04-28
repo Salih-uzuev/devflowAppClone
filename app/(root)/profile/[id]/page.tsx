@@ -1,5 +1,5 @@
 import React from 'react'
-import {getUser, getUserQuestions, getUsersAnswers} from "@/lib/actions/user.action";
+import {getUser, getUserQuestions, getUsersAnswers, getUserTopTags} from "@/lib/actions/user.action";
 import {RouteParams} from "@/types/global";
 import {notFound} from "next/navigation";
 import {auth} from "@/auth";
@@ -11,10 +11,11 @@ import {Button} from "@/components/ui/button";
 import Stats from "@/components/user/Stats";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import DataRenderer from "@/components/DataRenderer";
-import {EMPTY_ANSWERS, EMPTY_QUESTION} from "@/constans/states";
+import {EMPTY_ANSWERS, EMPTY_QUESTION, EMPTY_TAGS} from "@/constans/states";
 import QuestionCard from "@/components/cards/QuestionCard";
 import Pagination from "@/components/Pagination";
 import AnswerCard from "@/components/cards/AnswerCard";
+import TagCard from "@/components/cards/TagCard";
 
 const Profile = async ({params, searchParams}:RouteParams) => {
 
@@ -63,6 +64,20 @@ const Profile = async ({params, searchParams}:RouteParams) => {
     })
 
     const {answers, isNext: hasMoreAnswers} = userAnswersData!;
+
+    const {
+        success: userTopTagsSuccess,
+        data:userTopTagsData,
+        error:userTopTagsError
+
+    } = await getUserTopTags({
+        userId:id,
+
+    })
+
+    const {tags} = userTopTagsData!;
+
+
 
     const {_id, name,image,portfolio,location,createdAt,username,bio} = user;
 
@@ -141,7 +156,7 @@ const Profile = async ({params, searchParams}:RouteParams) => {
 
                                 <div className="flex w-full flex-col gap-6">
                                     {questions.map((questions)=>(
-                                        <QuestionCard question={questions} key={questions._id}/>
+                                        <QuestionCard question={questions} key={questions._id} showActionBtns={loggedInUser?.user?.id === questions.author._id}/>
                                     ))}
 
                                 </div>
@@ -152,12 +167,12 @@ const Profile = async ({params, searchParams}:RouteParams) => {
 
 
 
-                    <TabsContent value="answers" className="flex w-full flex-col gap-6">
+                    <TabsContent value="answers" className="flex w-full flex-col gap-10">
                         <DataRenderer success={userAnswersSuccess} data={answers} error={userAnswersError} empty={EMPTY_ANSWERS} render={(answers)=>(
 
                             <div className="flex w-full flex-col gap-6">
                                 {answers.map((answer)=>(
-                                    <AnswerCard key={answer._id} {...answer} content={answer.content.slice(0,27)} showReadMore containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"/>
+                                    <AnswerCard key={answer._id} {...answer} showActionBtns={loggedInUser?.user?.id === answer.author._id} content={answer.content.slice(0,27)} showReadMore containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"/>
                                 ))}
 
                             </div>
@@ -171,7 +186,16 @@ const Profile = async ({params, searchParams}:RouteParams) => {
                 <div className="flex min-h-[250px] w-full flex-1 flex-col max-lg:hidden">
                     <h3 className="h3-bold text-dark200_light900">Top Tech</h3>
                     <div className="mt-7 flex flex-col gap-4">
-                        <p>List of Tags</p>
+                        <DataRenderer success={userTopTagsSuccess} data={tags} error={userTopTagsError} empty={EMPTY_TAGS} render={(tags)=>(
+
+                            <div className="mt-3 flex w-full flex-col gap-4">
+                                {tags.map((tag)=>(
+                                   <TagCard key={tag._id} _id={tag._id} name={tag.name} questions={tag.count} showCount compact/>
+                                ))}
+
+                            </div>
+
+                        )}/>
                     </div>
 
                 </div>

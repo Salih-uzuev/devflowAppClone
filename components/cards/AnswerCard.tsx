@@ -6,21 +6,28 @@ import {cn, getTimeStamp} from "@/lib/utils";
 import {Preview} from "@/components/editor/Preview";
 import Votes from "@/components/votes/Votes";
 import {hasVoted} from "@/lib/actions/vote.action";
+import EditDeleteAction from "@/components/user/EditDeleteAction";
 
 interface Props extends Answer{
     containerClasses?:string
     showReadMore?:boolean
+    showActionBtns?:boolean
 }
 
 // @ts-ignore
-const AnswerCard = ({_id, author, content, createdAt, upvotes, downvotes, question, containerClasses, showReadMore=false,}: Props) => {
+const AnswerCard = ({_id, author, content, createdAt, upvotes, downvotes, question, containerClasses, showReadMore=false, showActionBtns=false}: Props) => {
     const hasVotedPromise = hasVoted({
         targetId:_id,
         targetType:"answer"
     })
     return (
-        <article className={cn("light-border border-b py-10", containerClasses)}>
+        <article className={cn("light-border border-b py-10 relative", containerClasses)}>
             <span id={`answer-${_id}`} className="hash-span"/>
+            {showActionBtns && (
+                <div className="background-light800 flex-center absolute -right-2 -top-7 size-9 rounded-full">
+                    <EditDeleteAction type="Answer" itemId={_id}/>
+                </div>
+            )}
             <div className="mb-5 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex flex-1 items-start gap-1 sm:items-center">
                     <UserAvatar id={author._id} name={author.name} imageUrl={author.image} className="size-5 rounded-full object-cover max-sm:mt-2 "/>
