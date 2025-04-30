@@ -1,5 +1,5 @@
 import React from 'react'
-import {getUser, getUserQuestions, getUsersAnswers, getUserTopTags} from "@/lib/actions/user.action";
+import {getUser, getUserQuestions, getUsersAnswers, getUserStats, getUserTopTags} from "@/lib/actions/user.action";
 import {RouteParams} from "@/types/global";
 import {notFound} from "next/navigation";
 import {auth} from "@/auth";
@@ -37,7 +37,8 @@ const Profile = async ({params, searchParams}:RouteParams) => {
         </div>
     );
 
-    const {user, totalQuestion, totalAnswers} = data!;
+    const {user} = data!;
+    const {data:userStats} = await getUserStats({userId:id});
 
     const {
         success: userQuestionSuccess,
@@ -136,13 +137,9 @@ const Profile = async ({params, searchParams}:RouteParams) => {
             </div>
         </section>
             <Stats
-                totalQuestion={totalQuestion}
-                totalAnswers={totalAnswers}
-                badges={{
-                    gold:0,
-                    bronze:0,
-                    silver:0
-                }}
+                totalQuestions={userStats?.totalQuestions || 0}
+                totalAnswers={userStats?.totalAnswers || 0}
+                badges={userStats?.badges || { GOLD: 0, SILVER: 0, BRONZE: 0 }}
                 reputationPoints={user.reputation || 0}
             />
 

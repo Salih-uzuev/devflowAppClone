@@ -19,6 +19,8 @@ import dbConnect from "@/lib/mongoose";
 import Collection from "@/database/collection.model";
 import {Answer, Vote} from "@/database";
 import {revalidatePath} from "next/cache";
+import {after} from "next/server";
+import {createInteraction} from "@/lib/actions/interaction.action";
 
 
 // @ts-ignore
@@ -61,6 +63,15 @@ export async function createQuestion(params:CreateQuestionParamas):Promise<Actio
             {$push:{tags:{$each:tagIds}}},
             {session}
         );
+
+        after(async ()=>{
+            await createInteraction({
+                action:"post",
+                actionId:question._id.toString(),
+                actionTarget:"question",
+                authorId:userId as string
+            });
+        });
 
         await session.commitTransaction();
         return {success:true, data:JSON.parse(JSON.stringify(question))};

@@ -82,8 +82,14 @@ interface Collection{
 }
 
 interface BadgeCounts{
-    gold: number;
-    silver: number;
-    bronze: number;
+    GOLD: number;
+    SILVER: number;
+    BRONZE: number;
+}
+
+interface Badges{
+    GOLD: number;
+    SILVER: number;
+    BRONZE: number;
 }
 

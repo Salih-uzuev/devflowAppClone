@@ -4,7 +4,7 @@ import {formatNumber} from "@/lib/utils";
 import Image from "next/image";
 
 interface Props {
-    totalQuestion: number;
+    totalQuestions: number;
     totalAnswers: number;
     badges: BadgeCounts
     reputationPoints:number;
@@ -17,7 +17,7 @@ interface StatsCardProps {
 }
 
 const StatsCard = ({imgUrl, value,title}:StatsCardProps) =>(
-    <div className="light-border background-light900_dark300 flex flex-wrap items-center start gap-4 rounded-md border p-6 shadow-light-300 dark:shadow-dark-200">
+    <div className="light-border background-light900_dark300 start flex flex-wrap items-center gap-4 rounded-md border p-6 shadow-light-300 dark:shadow-dark-200">
         <Image src={imgUrl} alt={title} width={40} height={50}/>
         <div>
             <p className="paragraph-semibold text-dark200_light900">{value}</p>
@@ -27,7 +27,7 @@ const StatsCard = ({imgUrl, value,title}:StatsCardProps) =>(
     </div>
 )
 
-const Stats = ({totalQuestion, totalAnswers,badges, reputationPoints}:Props) => {
+const Stats = ({totalQuestions, totalAnswers,badges, reputationPoints}:Props) => {
     return (
         <div className="mt-3">
             <h4 className="h3-semibold text-dark200_light900">
@@ -39,7 +39,7 @@ const Stats = ({totalQuestion, totalAnswers,badges, reputationPoints}:Props) => 
             <div className="mt-5 grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-4">
                 <div className="light-border background-light900_dark300 flex flex-wrap items-center justify-evenly gap-4 rounded-md border p-6 shadow-light-300 dark:shadow-dark-200">
                     <div>
-                        <p className="paragraph-semibold text-dark200_light900">{formatNumber(totalQuestion)}</p>
+                        <p className="paragraph-semibold text-dark200_light900">{formatNumber(totalQuestions)}</p>
                         <p className="body-medium text-dark400_light700">Questions</p>
                     </div>
                     <div>
@@ -50,17 +50,17 @@ const Stats = ({totalQuestion, totalAnswers,badges, reputationPoints}:Props) => 
                 </div>
                 <StatsCard
                 imgUrl="/icons/gold-medal.svg"
-                value={badges.gold}
+                value={badges.GOLD}
                 title="Gold Badges"
                 />
                 <StatsCard
                     imgUrl="/icons/silver-medal.svg"
-                    value={badges.silver}
+                    value={badges.SILVER}
                     title="Silver Badges"
                 />
                 <StatsCard
                     imgUrl="/icons/bronze-medal.svg"
-                    value={badges.bronze}
+                    value={badges.BRONZE}
                     title="Bronze Badges"
                 />
 
