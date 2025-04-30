@@ -62,6 +62,7 @@ export async function createAnswer(params:CreateAnswerParams):Promise<ActionResp
 }
 
 export async function getAnswers(params:GetAnswersParams):Promise<ActionResponse<{
+    // @ts-ignore
     answers:Answer[],
     isNext:boolean,
     totalAnswers:number;

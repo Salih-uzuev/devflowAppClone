@@ -1,4 +1,6 @@
 import {PaginatedSearchParams} from "@/types/global";
+import {IInteractionDoc} from "@/database/interaction.model";
+import mongoose from "mongoose";
 
 interface SignInWithOAuthParams{
     provider:'github'| 'google',
@@ -90,4 +92,26 @@ interface DeleteQuestionParams{
 
 interface DeleteAnswerParams{
     answerId:string;
+}
+
+interface CreateInteractionParams{
+    action:
+         "view"
+        | "upvote"
+        | "downvote"
+        | "bookmark"
+        | "post"
+        | "edit"
+        | "delete"
+        | "search";
+    actionTarget:"question" | "answer";
+    actionId:string;
+    authorId:string;
+}
+
+interface UpdateReputationParams{
+    interaction:IInteractionDoc;
+    session:mongoose.ClientSession;
+    performedId:string;
+    authorId:string;
 }
