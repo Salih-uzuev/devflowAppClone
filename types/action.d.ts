@@ -115,3 +115,10 @@ interface UpdateReputationParams{
     performedId:string;
     authorId:string;
 }
+
+interface RecommendationParams{
+    userId:string;
+    query?:string;
+    skip:number;
+    limit:number;
+}

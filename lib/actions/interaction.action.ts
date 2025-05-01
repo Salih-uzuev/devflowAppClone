@@ -4,7 +4,7 @@ import {ActionResponse, ErrorResponse} from "@/types/global";
 import action from "@/lib/handlers/action";
 import {CreateInteractionSchema} from "@/lib/validations";
 import handleError from "@/lib/handlers/error";
-import mongoose from "mongoose";
+import mongoose, {Types} from "mongoose";
 import {Interaction, User} from "@/database";
 
 export async function createInteraction(params:CreateInteractionParams):Promise<ActionResponse<IInteractionDoc>> {
@@ -27,6 +27,7 @@ export async function createInteraction(params:CreateInteractionParams):Promise<
     const userId = validationResult.session?.user?.id;
 
     if(!userId) return handleError(new Error("Unauthorized")) as unknown as ErrorResponse;
+    const finalActionId = new Types.ObjectId(actionId);
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -37,7 +38,7 @@ export async function createInteraction(params:CreateInteractionParams):Promise<
                 {
                     user: userId,
                     action: actionType,
-                    actionId: actionId,
+                    actionId: finalActionId,
                     actionType: actionTarget
                 },
             ],

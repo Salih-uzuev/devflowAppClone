@@ -1,5 +1,5 @@
 "use server"
-import mongoose, {FilterQuery} from "mongoose";
+import mongoose, {FilterQuery, Types} from "mongoose";
 
 import Question, {IQuestionDoc} from "@/database/question.model";
 import {ActionResponse, ErrorResponse, PaginatedSearchParams} from "@/types/global";
@@ -14,13 +14,14 @@ import {
 import handleError from "@/lib/handlers/error";
 import Tag, {ITagDoc} from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
-import {DeleteQuestionParams, IncrementViewsParams} from "@/types/action";
+import {DeleteQuestionParams, IncrementViewsParams, RecommendationParams} from "@/types/action";
 import dbConnect from "@/lib/mongoose";
 import Collection from "@/database/collection.model";
-import {Answer, Vote} from "@/database";
+import {Answer, Interaction, Vote} from "@/database";
 import {revalidatePath} from "next/cache";
 import {after} from "next/server";
 import {createInteraction} from "@/lib/actions/interaction.action";
+import {auth} from "@/auth";
 
 
 // @ts-ignore
@@ -217,75 +218,164 @@ export async function getQuestion(params:GetQuestionParams):Promise<ActionRespon
     }
 }
 
-// @ts-ignore
-export async function getQuestions(params:PaginatedSearchParams): Promise<ActionResponse<{questions:Question[], isNext:boolean}>>{
+export async function getRecommendedQuestions({
+                                                  userId,
+                                                  query,
+                                                  skip,
+                                                  limit,
+                                              }: RecommendationParams) {
+    // Get user's recent interactions
+    const interactions = await Interaction.find({
+        user: new Types.ObjectId(userId),
+        actionType: "question",
+        action: { $in: ["view", "upvote", "bookmark", "post"] },
+    })
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .lean();
+
+    const interactedQuestionIds = interactions.map((i) => i.actionId);
+
+    // Get tags from interacted questions
+    const interactedQuestions = await Question.find({
+        _id: { $in: interactedQuestionIds },
+    }).select("tags");
+
+    // Get unique tags
+    const allTags = interactedQuestions.flatMap((q) =>
+        q.tags.map((tag: Types.ObjectId) => tag.toString())
+    );
+
+    console.log("interactions", interactions); // boş mu?
+    console.log("interactedQuestions", interactedQuestions); // boş mu?
+
+    // Remove duplicates
+    const uniqueTagIds = [...new Set(allTags)];
+    console.log("uniqueTagIds", uniqueTagIds); // boş mu?
+
+
+    const recommendedQuery: FilterQuery<typeof Question> = {
+        // exclude interacted questions
+        _id: { $nin: interactedQuestionIds },
+        // exclude the user's own questions
+        author: { $ne: new Types.ObjectId(userId) },
+        // include questions with any of the unique tags
+        tags: { $in: uniqueTagIds.map((id) => new Types.ObjectId(id)) },
+    };
+
+    if (query) {
+        recommendedQuery.$or = [
+            { title: { $regex: query, $options: "i" } },
+            { content: { $regex: query, $options: "i" } },
+        ];
+    }
+
+    const total = await Question.countDocuments(recommendedQuery);
+
+    const questions = await Question.find(recommendedQuery)
+        .populate("tags", "name")
+        .populate("author", "name image")
+        .sort({ upvote: -1, views: -1 }) // prioritizing engagement
+        .skip(skip)
+        .limit(limit)
+        .lean();
+
+    return {
+        questions: JSON.parse(JSON.stringify(questions)),
+        isNext: total > skip + questions.length,
+    };
+}
+
+export async function getQuestions(params: PaginatedSearchParams): Promise<
+    ActionResponse<{
+        questions: Question[];
+        isNext: boolean;
+    }>
+> {
     const validationResult = await action({
         params,
-        schema:PaginatedSearchParamsSchema
+        schema: PaginatedSearchParamsSchema,
     });
 
-    if(validationResult instanceof Error){
+    if (validationResult instanceof Error) {
         return handleError(validationResult) as unknown as ErrorResponse;
     }
 
-    const {page=1, pageSize=10, query, filter} = params;
-    const skip = (Number(page)-1) * pageSize;
-    const limit = Number(pageSize);
+    const { page = 1, pageSize = 10, query, filter } = params;
+
+    const skip = (Number(page) - 1) * pageSize;
+    const limit = pageSize;
 
     const filterQuery: FilterQuery<typeof Question> = {};
-
-    if(filter === 'recommended') return {success:true, data:{questions:[], isNext:false}};
-
-    if(query){
-        filterQuery.$or = [
-            {title:{$regex: new RegExp(query, "i")}},
-            {content:{$regex: new RegExp(query, "i")}}
-        ]
-    }
-
     let sortCriteria = {};
 
-    switch (filter) {
-        case 'newest':
-            sortCriteria = {createdAt:-1};
-            break;
-        case 'unanswered':
-            filterQuery.answers = 0;
-            sortCriteria = {createdAt:-1};
-            break;
-        case 'popular':
-            sortCriteria = {upvotes:-1};
-            break;
-        default:
-            sortCriteria = {createdAt:-1};
-            break;
-    }
-
-
-
     try {
+        // Recommendations
+    if (filter === "recommended") {
+            const session = await auth();
+            const userId = session?.user?.id;
 
+            if (!userId) {
+                return { success: true, data: { questions: [], isNext: false } };
+            }
 
-        const totalQuestion = await Question.countDocuments(filterQuery)
+            const recommended = await getRecommendedQuestions({
+                userId,
+                query,
+                skip,
+                limit,
+            });
+
+            return { success: true, data: recommended };
+        }
+
+        // Search
+        if (query) {
+            filterQuery.$or = [
+                { title: { $regex: query, $options: "i" } },
+                { content: { $regex: query, $options: "i" } },
+            ];
+        }
+
+        // Filters
+        switch (filter) {
+            case "newest":
+                sortCriteria = { createdAt: -1 };
+                break;
+            case "unanswered":
+                filterQuery.answers = 0;
+                sortCriteria = { createdAt: -1 };
+                break;
+            case "popular":
+                sortCriteria = { upvotes: -1 };
+                break;
+            default:
+                sortCriteria = { createdAt: -1 };
+                break;
+        }
+
+        const totalQuestions = await Question.countDocuments(filterQuery);
+
         const questions = await Question.find(filterQuery)
-            .populate('tags', 'name')
-            .populate('author', 'name image')
+            .populate("tags", "name")
+            .populate("author", "name image")
             .lean()
             .sort(sortCriteria)
             .skip(skip)
             .limit(limit);
 
-        const isNext = totalQuestion > skip + questions.length;
-        return{
-            success:true,
-            data:{questions:JSON.parse(JSON.stringify(questions)), isNext}
-        }
+        const isNext = totalQuestions > skip + questions.length;
 
-
-    }catch (error) {
-        return handleError(error) as unknown as ErrorResponse
+        return {
+            success: true,
+            data: {
+                questions: JSON.parse(JSON.stringify(questions)),
+                isNext,
+            },
+        };
+    } catch (error) {
+        return handleError(error) as unknown as ErrorResponse;
     }
-
 }
 
 export async function incrementViews(
@@ -411,4 +501,6 @@ export async function deleteQuestion(params:DeleteQuestionParams):Promise<Action
 
 
 }
+
+
 
