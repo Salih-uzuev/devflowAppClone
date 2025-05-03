@@ -1,7 +1,6 @@
 import {NextResponse} from "next/server";
 import {RequestError, ValidationError} from "@/lib/http-errors";
 import {ZodError} from "zod";
-import {Error} from "mongoose";
 import logger from "@/lib/logger";
 
 
@@ -14,7 +13,7 @@ const formatResponse = (
     errors?: Record<string, string[]> | undefined,
 )=>{
     const responseContent = {
-        sucess:false,
+        success:false,
         error:{
             message,
             details:errors
