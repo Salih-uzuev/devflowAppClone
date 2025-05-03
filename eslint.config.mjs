@@ -24,5 +24,11 @@ export default [
     rules: {
       "no-undef": "off",
     },
+    "ignorePatterns": [
+        'components/ui/**',
+        'components/**',
+        'lib/**',
+        'app/**',
+    ],
   },
 ];
