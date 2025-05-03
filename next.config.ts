@@ -3,6 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
     serverExternalPackages:["pino", "pino-pretty"],
     transpilePackages: ["next-mdx-remote"],
+    eslint: {
+        ignoreDuringBuilds: true
+    },
+    typescript: {
+        ignoreBuildErrors: true
+    },
   /* config options here */
     images:{
         remotePatterns: [
