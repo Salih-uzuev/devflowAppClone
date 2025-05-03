@@ -13,6 +13,8 @@ import Pagination from "@/components/Pagination";
 const Community = async ({searchParams}:RouteParams) => {
     const {page, pageSize, query, filter} = await searchParams;
 
+
+
     const {success, data, error} = await getUsers({
         page: Number(page) || 1,
         pageSize: Number(pageSize) || 10,
