@@ -14,7 +14,7 @@ import {
 import handleError from "@/lib/handlers/error";
 import Tag, {ITagDoc} from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
-import {DeleteQuestionParams, IncrementViewsParams, RecommendationParams} from "@/types/action";
+import {DeleteQuestionParams, GetQuestionParams, IncrementViewsParams, RecommendationParams} from "@/types/action";
 import dbConnect from "@/lib/mongoose";
 import Collection from "@/database/collection.model";
 import {Answer, Interaction, Vote} from "@/database";
@@ -22,6 +22,7 @@ import {revalidatePath} from "next/cache";
 import {after} from "next/server";
 import {createInteraction} from "@/lib/actions/interaction.action";
 import {auth} from "@/auth";
+import { cache } from "react";
 
 
 // @ts-ignore
@@ -192,8 +193,8 @@ export async function editQuestion(params:EditQuestionParams):Promise<ActionResp
 
 }
 
-// @ts-ignore
-export async function getQuestion(params:GetQuestionParams):Promise<ActionResponse<Question>> {
+export const getQuestion = cache(async function getQuestion(
+    params:GetQuestionParams):Promise<ActionResponse<Question>> {
 
     const validationResult = await action({params, schema: GetQuestionSchema, authorize: true});
 
@@ -216,7 +217,8 @@ export async function getQuestion(params:GetQuestionParams):Promise<ActionRespon
     }catch (e){
         return handleError(e) as unknown as ErrorResponse
     }
-}
+})
+
 
 export async function getRecommendedQuestions({
                                                   userId,
